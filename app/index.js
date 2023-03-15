@@ -1,12 +1,20 @@
-import { View, Dimensions, Text, StyleSheet, Pressable, TextInput } from "react-native";
+import { useState } from "react";
+import { Dimensions, Text, StyleSheet, Pressable, TextInput } from "react-native";
 import { styles } from "../style";
 import Svg, { Image, Ellipse, ClipPath } from 'react-native-svg';
-import Animated, { useSharedValue, useAnimatedStyle, interpolate, withTiming } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, interpolate, withTiming, withDelay, withSequence, withSpring } from 'react-native-reanimated';
+
 
 
 
 export default function Page() {
+
+  const [isRegistering, setIsRegistering] = useState(false)
+
+
   const imagePosition = useSharedValue(1);
+  const scalePosition = useSharedValue(1);
+
   const { height, width } = Dimensions.get("screen")
 
   const imageAnimatedStyle = useAnimatedStyle(() => {
@@ -28,14 +36,37 @@ export default function Page() {
 
   const loginHandle = () => {
     imagePosition.value = 0
+    setIsRegistering(true)
   }
   const logoutHandle = () => {
     imagePosition.value = 0
+    setIsRegistering(false)
   }
 
   const handleClose = () => {
     imagePosition.value = 1
   }
+
+  const handleCloseStyle = useAnimatedStyle(() => {
+    const interpolation = interpolate(imagePosition.value, [0, 1], [180, 360])
+    return {
+      opacity: withTiming(imagePosition.value === 1 ? 0 : 1, { duration: 1000 }),
+      transform: [{ rotate: withTiming(interpolation + "deg", { duration: 1500 }) }]
+    }
+  })
+
+
+  const handleFormStyle = useAnimatedStyle(() => {
+    return {
+      opacity: imagePosition.value === 0 ? withDelay(400, withTiming(1, { duration: 1000 })) : withTiming(0, { duration: 500 })
+    }
+  })
+
+  const buttonScaleStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scalePosition.value }]
+    }
+  })
 
 
 
@@ -53,9 +84,9 @@ export default function Page() {
           <Image href={require('../asset/star.jpg')} width={width} height={height} preserveAspectRatio="xMidYMid slice" clipPath="url(#clipPathId)" />
         </Svg>
 
-        <Pressable onPress={handleClose} style={[styles.Xcontainer, styles.shadow]}>
-          <Text style={styles.Xtext}>X</Text>
-        </Pressable>
+        <Animated.View style={[styles.Xcontainer, styles.shadow, handleCloseStyle]}>
+          <Text onPress={handleClose} style={styles.Xtext}>X</Text>
+        </Animated.View>
 
       </Animated.View>
 
@@ -70,15 +101,17 @@ export default function Page() {
       </Animated.View>
 
       {/* register form */}
-      {/*       
-      <View style={styles.formContainer}>
-        <TextInput placeholder="full name" placeholderTextColor="black" style={styles.textInput} />
+
+      <Animated.View style={[styles.formContainer, handleFormStyle]}>
+        {!isRegistering && <TextInput placeholder="full name" placeholderTextColor="black" style={styles.textInput} />}
         <TextInput placeholder="email" placeholderTextColor="black" style={styles.textInput} />
         <TextInput placeholder="password" placeholderTextColor="black" style={styles.textInput} />
-        <Pressable style={[styles.btnContainer, { marginTop: 2 }]}>
-          <Text style={[styles.shadow, styles.btn]}>Register</Text>
-        </Pressable>
-      </View> */}
+        <Animated.View style={[styles.btnContainer, { marginTop: 2 }, buttonScaleStyle]}>
+          <Pressable onPress={() => scalePosition.value = withSequence(withSpring(1.2), withSpring(1))}>
+            <Text style={[styles.shadow, styles.btn]}>{!isRegistering ? "Register" : "Log In"}</Text>
+          </Pressable>
+        </Animated.View>
+      </Animated.View>
 
     </Animated.View>
   );

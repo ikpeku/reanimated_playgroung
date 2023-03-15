@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from "react-native";
 
-const { height } = Dimensions.get("screen")
+const { height, width } = Dimensions.get("screen")
 
 
 export const styles = StyleSheet.create({
@@ -27,6 +27,9 @@ export const styles = StyleSheet.create({
     btnsContainer: {
         // height: height / 3,
         // borderWidth: 10
+        position: "absolute",
+        width: width,
+        zIndex: 100
 
     },
     textInput: {
@@ -50,7 +53,7 @@ export const styles = StyleSheet.create({
         elevation: 14,
     },
     formContainer: {
-        marginBottom: 15
+        marginBottom: 15,
     },
     Xcontainer: {
         justifyContent: "center",
@@ -66,6 +69,8 @@ export const styles = StyleSheet.create({
     Xtext: {
         fontSize: 20,
         fontWeight: 600,
-        // textAlign: "center"
+        color: "#013a45",
+        width: "100%",
+        textAlign: "center"
     }
 });
